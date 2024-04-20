@@ -1,0 +1,154 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include <stdbool.h>
+#include<locale.h>
+
+typedef struct no{
+	char *p;
+	struct no *proximo;
+}No;
+
+typedef struct{
+	No *topo;
+	int tam;
+}Pilha;
+
+void criar (Pilha *p){
+	p->topo = NULL;
+	p->tam = 0;
+}  
+
+void empilhar(Pilha *p, char *result){
+	No *novo = (No*)malloc (sizeof(No));
+	
+	if (novo){
+		novo->p = strdup(result);
+		novo->proximo = p->topo;
+		p->topo= novo;
+		p->tam++;
+	}else
+	    printf("\nError ao alocar memória.\n");
+}
+
+bool comparar(Pilha *p, char *sequencia3){
+	No *aux = p->topo;
+	bool igual = false;
+	
+	while(aux){ 
+		
+		if(strcmp(aux->p, sequencia3) == 0){
+//			printf("É igual.");
+			igual = true;
+		}
+		aux = aux->proximo;
+	}
+	return igual;
+}
+
+typedef struct no_lista{
+  char *valor;
+  struct no_lista *proximo;
+}No_Lista;
+
+typedef struct{
+  No_Lista *inicio;
+  int tam;
+}Lista;
+
+void criar_lista(Lista *lista){
+  lista->inicio = NULL;
+  lista->tam = 0;
+}
+
+void listar_inicio(Lista *lista, char *num){
+  No_Lista *novo = (No_Lista*)malloc(sizeof(No_Lista));
+
+  if(novo){
+    novo->valor = strdup(num);
+    novo->proximo = lista->inicio;
+    lista->inicio = novo;
+    lista->tam++;
+  }else
+    printf("Erro ao alocar memória.\n");
+}
+
+typedef struct no_fila {
+	int valor;
+	struct no_fila *proximo;
+} No_Fila;
+
+void inserir(No_Fila **fila, int num) {
+	No_Fila *aux, *novo = malloc(sizeof(No_Fila));
+	if (novo) {
+		novo->valor = num;
+		novo->proximo = NULL;
+		if (*fila == NULL) {
+			*fila = novo;
+		} else {
+			aux = *fila;
+			while (aux->proximo)
+				aux = aux->proximo;
+			aux->proximo = novo;
+		}
+	} else {
+		printf("Erro ao alocar memória\n");
+	}
+}
+
+void imprimir_lista_fila(Lista lista, No_Fila *fila){
+  No_Lista *no = lista.inicio;
+  No_Fila *atual = fila;
+//  printf("\nTamanho da Lista: %d ", lista.tam);
+  while(no){
+    printf("%s está no índice %d da pilha\n", no->valor, atual->valor);
+    no = no->proximo;
+    atual = atual->proximo;
+  }
+  printf("\n");
+}
+
+
+int main() {
+	setlocale(LC_ALL, "Portuguese");
+    const char *arquivo = "arquivo.txt";
+    FILE *arq;
+	char sub_sequencia[4], *result = malloc(strlen(sub_sequencia) + 1);
+	Pilha p;
+	Lista lista;
+	No_Fila *fila = NULL;
+    arq = fopen("arquivo.txt", "r");
+    
+    if(arq){
+    	while (fread(sub_sequencia, sizeof(char), 3, arq) == 3) {
+        	sub_sequencia[3] = '\0';
+        	strcpy(result, sub_sequencia);
+        	empilhar(&p, result);
+    	}
+	}else{
+		printf("\nErro ao abrir arquivo.\n");
+	}
+	fclose(arq);
+	
+	char sequencia[50], sequencia3[4], *seq; 
+	int i, j, grupos;
+
+	printf("Digite a sequência de DNA: ");
+    gets (sequencia);	
+    
+	grupos = strlen(sequencia) / 3;
+    
+	for (i = 0; i < grupos; i++) {
+        for (j = 0; j < 3; j++) {
+            sequencia3[j] = sequencia[i * 3 + j];
+        }
+        seq = sequencia3;
+		if(comparar(&p, seq)==true){
+			listar_inicio(&lista, seq);
+			inserir(&fila,(i * 3 + j));
+		}
+    }
+    
+    imprimir_lista_fila(lista, fila);
+    return 0;
+} 
